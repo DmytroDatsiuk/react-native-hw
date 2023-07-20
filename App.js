@@ -1,24 +1,50 @@
-import React from "react";
+import { Provider } from "react-redux";
 
-import { NavigationContainer } from "@react-navigation/native";
-import { useRoute } from "./router";
-import "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
+
+import { View, StyleSheet } from "react-native";
+
+import { store } from "./redux/store";
+
+import { useCallback } from "react";
+
 import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 
-const App = () => {
-  const routing = useRoute(null);
+import Main from "./components/Main";
 
+SplashScreen.preventAutoHideAsync();
+
+export default function App() {
   const [fontsLoaded] = useFonts({
-    RobotoBold: require("./fonts/Roboto-Bold.ttf"), // Завантаження шрифту Roboto-Bold
-    RobotoRegular: require("./fonts/Roboto-Regular.ttf"), // Завантаження шрифту Roboto-Regular
-    RobotoMedium: require("./fonts/Roboto-Medium.ttf"), // Завантаження шрифту Roboto-Medium
+    RobotoRegular: require("./assets/fonts/Roboto-Regular.ttf"),
+    RobotoMedium: require("./assets/fonts/Roboto-Medium.ttf"),
+    RobotoBold: require("./assets/fonts/Roboto-Bold.ttf"),
   });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return null;
   }
+  return (
+    <>
+      <Provider store={store}>
+        <View onLayout={onLayoutRootView} style={styles.container}>
+          <StatusBar style="auto" />
+          <Main />
+        </View>
+      </Provider>
+    </>
+  );
+}
 
-  return <NavigationContainer>{routing}</NavigationContainer>;
-};
-
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
